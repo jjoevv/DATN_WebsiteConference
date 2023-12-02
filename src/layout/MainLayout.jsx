@@ -1,8 +1,8 @@
 import React from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Outlet } from 'react-router-dom'
 import Header from '../components/Header'
 
-const Layout = () => {
+const MainLayout = () => {
     const location = useLocation()
   return (
     <>
@@ -13,9 +13,10 @@ const Layout = () => {
             :
             <Header/>
         }
+        <Outlet/>
 
     </>
   )
 }
 
-export default Layout
+export default MainLayout

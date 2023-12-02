@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, Container, Row, Col, Image, Button } from 'react-bootstrap';
+import { Card, Container, Stack, Image, Button } from 'react-bootstrap';
 
 import { Slide } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css';
@@ -19,7 +19,7 @@ const test = [
         update_time: "22/11/2023",
         follow: false,
 
-    },{
+    }, {
         con_id: 2,
         acronym: "KDD",
         con_name: "ACM International Conference on Knowledge Discovery and Data Mining",
@@ -54,69 +54,89 @@ const test = [
         follow: false,
 
     },
-    
+
 ]
 
-const customButtonStyle = {
-    width: '50px',
-    height: "50px",
-    borderRadius: "50%",
-}
 
 const properties = {
     prevArrow: <Button className='custom_button_slideshow custom_button_prev'>
-                    <Image src={PrevIcon} style={{width: "20px"}} fluid className='position-absolute'/>
-                </Button>,
+        <Image src={PrevIcon} style={{ width: "15px" }} fluid />
+    </Button>,
 
     nextArrow: <Button className='custom_button_slideshow'>
-                    <Image src={NextIcon} style={{width: "20px"}}/>
-                </Button>
+        <Image src={NextIcon} style={{ width: "15px" }} />
+    </Button>
 }
 const SlideShow = () => {
     const [listEvents, setListEvents] = useState(test)
-    console.log(listEvents)
-  return (
-    <Container className='bg-white rounded-5 p-4' style={{height: "300px"}} >
-        <h3>Upcoming Event</h3>
-
-        <div  className='m-4'>
-            <Slide slidesToScroll={2} slidesToShow={2} indicators={false} {...properties} autoplay={false}>
-                {
-                    listEvents.map((event)=>(
-                        <Card key={event.con_id} className='p-3 rounded-4 my-slider-card border-0'>
-                            <Row className='d-flex align-items-center justify-content-center'>
-                                <Col md={4} className='bg-white rounded-4 h1 fw-bolder d-flex align-items-center justify-content-center ' style={{width: '140px', height:"140px"}}>
-    
-                                        {event.acronym}
-                                   
-                                </Col>
-                                <Col md={7} className=''>
+    const onClickFollow = () => {
+        
+    }
+    // console.log(listEvents)
+    return (
+        <Container className='mt-2' style={{ height: "300px" }} >
             
-                                    <Card.Body className=''>
-                                    <Card.Title>{event.con_name}</Card.Title>
-                                    <Card.Text className='d-flex align-items-center mb-1'>
-                                        <Image src={TimeIcon} className='me-3' style={{width: '20px'}}/>
-                                        {event.update_time}
-                                    </Card.Text>
-                                    <Card.Text className='d-flex align-items-center'>
-                                        <Image src={LocationIcon} className='me-3' style={{width: '18px'}}/>
-                                        {event.location}
-                                    </Card.Text>
+
+            <div className='m-4 border-0 rounded-4 p-4' style={{backgroundColor: "#F3FCFB"}}>
+                <h4 className='mb-4'>Upcoming Event</h4>
+                <Slide slidesToScroll={2} slidesToShow={2} indicators={false} {...properties} autoplay={false}>
+                    {
+                        listEvents.map((conf) => (
+                            <Card
+                                className='my-slider-card'
+                                id={conf.con_id} key={conf.con_id}>
+                                <Stack className=' p-0 ' direction='horizontal' >
+                                    <div md={4} className='bg-white rounded-4 h1 fw-bolder d-flex align-items-center justify-content-center border border-secondary' style={{ width: '120px', height: "120px" }}>
+
+                                        <span style={{ color: "#1E4540", fontSize: "35px", whiteSpace: "2%" }} className='fw-bold'>{conf.acronym}</span>
+
+                                    </div>
+
+                                    <Card.Body style={{ width: "360px" }}>
+
+                                        <Stack>
+                                            <Card.Title className='d-flex align-items-center mb-1' style={{ width: '360[x' }}>{conf.con_name}</Card.Title>
+                                            <Stack direction="horizontal" gap={5}>
+                                                <Card.Text className='d-flex align-items-center mb-1'>
+                                                    <Image src={TimeIcon} className='me-2' style={{ width: '20px' }} />
+                                                    <span className='conf-data'>{conf.update_time}</span>
+                                                </Card.Text>
+                                                <Card.Text className='d-flex align-items-center mb-1'>
+                                                    <Image src={TimeIcon} className='me-2' style={{ width: '20px' }} />
+
+                                                    <span className='conf-data'>{conf.update_time}</span>
+                                                </Card.Text>
+                                            </Stack>
+                                        </Stack>
+                                        <Card.Text className='conf-data m-0'>
+                                            <Image src={LocationIcon} className='me-2' style={{ width: '18px' }} />
+                                            {conf.location}
+                                        </Card.Text>
                                     </Card.Body>
-                                </Col>
-                                <Col>
-                                    <Button className='' style={{width: "30px"}}>
-                                        <Image src={event.follow ? FollowIcon : UnfollowIcon}/>
+                                    <Button className='icon-slider-follow' onClick={onClickFollow()}>
+                                        {
+                                            conf.follow === true
+                                                ?
+                                                <>
+                                                    <Image src={FollowIcon} style={{ width: '18px', textAlign: "center" }} />
+                                                </>
+                                                :
+                                                <>
+                                                    <Image src={UnfollowIcon} style={{ width: '18px', textAlign: "center" }} />
+                                                </>
+                                        }
+
                                     </Button>
-                                </Col>
-                            </Row>
-                        </Card>
-                    ))
-                }
-            </Slide>
-        </div>
-    </Container>
-  )
+
+                                </Stack>
+                            </Card>
+
+                        ))
+                    }
+                </Slide>
+            </div>
+        </Container>
+    )
 }
 
 export default SlideShow
