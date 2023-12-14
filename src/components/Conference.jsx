@@ -16,6 +16,7 @@ const test = [
         location: "Vietnam",
         update_time: "22/11/2023",
         follow: false,
+        
 
     }, {
         con_id: 2,
@@ -85,7 +86,7 @@ const Conference = () => {
     }
 
     const chooseConf = (id) => {
-        navigate(`/detail/${id}`)
+        navigate(`/detail/${id}/information`)
     }
     console.log(location)
 

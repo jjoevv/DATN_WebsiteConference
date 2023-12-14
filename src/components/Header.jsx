@@ -22,10 +22,10 @@ const Header = () => {
   console.log(auth)
   return (
     <Navbar expand="md" 
-    className="bg-body-tertiary px-3 d-flex justify-content-between my-header container"
+    className="bg-body-tertiary d-flex justify-content-between my-header container w-100  sticky-top"
     
     >
-      <Container fluid className='d-flex justify-content-between'>
+      <Container fluid className='d-flex justify-content-between shadow-sm px-4'>
         <Navbar.Brand href="/home" className='my-header-brand'>DOANTOTNGHIEP</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -90,18 +90,9 @@ const Header = () => {
 
           </Nav>
 
-        </Navbar.Collapse>
+        </Navbar.Collapse>        
       </Container>
-      <hr style={{
-        color: '#419489',
-        backgroundColor: '#000000',
-        height: .1,
-        width: "1280px",
-        borderColor: '#000000',
-        position: "absolute",
-        marginTop: "70px",
-        marginRight: "100px"
-      }} />
+     
     </Navbar>
   )
 }

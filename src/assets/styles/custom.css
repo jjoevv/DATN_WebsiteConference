@@ -15,8 +15,21 @@ h1,h2,h3,h4,h5{
 .bg-red-normal{
     background-color: #E95D54;
 }
+.bg-red-normal:hover{
+    background-color: #c64b44;
+}
 .bg-blue-normal{
     background-color: #1A7482;
+}
+.bg-brown-normal{
+    background-color: #eca841;
+}
+.bg-brown-normal:hover{
+    background-color: burlywood;
+}
+.bg-re
+.text-brown-darker{
+    color: brown;
 }
 .text-font-darker {
     color: #1E4540;
@@ -48,6 +61,7 @@ a{
 .my-header{
     background-color: white !important;
     height: 60px;
+    max-width: 100vw;
 }
 
 .my-header-brand{

@@ -17,6 +17,9 @@ import YourConf from '../pages/auth/YourConf'
 import Timestamp from '../pages/auth/Timestamp'
 import Notifications from '../pages/auth/Notifications'
 import { AuthLayout } from '../layout/AuthLayout'
+import InformationPage from '../pages/public/InformationPage'
+import ImportantDatePage from '../pages/public/ImportantDatePage'
+import CallforpaperPage from '../pages/public/CallforpaperPage'
 
 const authPage = [
   {path: 'account', element: <Account/>},
@@ -33,7 +36,9 @@ const RoutesApp = () => {
           <Route path="home" element={<Homepage />} />
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
-          <Route path="detail/:id" element={<ConfDetail />} />
+          <Route path="detail/:id/information" element={<InformationPage />} />
+          <Route path="detail/:id/importantdates" element={<ImportantDatePage />} />
+          <Route path="detail/:id/callforpaper" element={<CallforpaperPage />} />
 
 
           <Route element={<AuthLayout/>}>
