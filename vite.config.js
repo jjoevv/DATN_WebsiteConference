@@ -7,5 +7,6 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['js-big-decimal', '@fullcalendar/core']
   },
+  base: '/DATN_WebsiteConference/'
   
 })
