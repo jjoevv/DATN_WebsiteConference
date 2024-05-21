@@ -1,51 +1,23 @@
-import { createContext, useEffect, useContext, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useReducer, useContext, createContext } from "react"
+import appReducer from "../reducers/reducer"
+import {initialState} from "../reducers/initState"
+const AppContext = createContext()
+const AppContextProvider = ({children}) => {
+    const [state, dispatch] = useReducer(appReducer, initialState)
 
-export const AuthContext = createContext(null);
-
-export const AuthContextProvider = (props) => {
-    const [token, setToken] = useState(null)
-    const [notiList, setNotiList] = useState([
-        {
-            noti_id: 1,
-            noti_type_id: 1,
-            noti_message: "ACM SIGKDD Conference on Knowledge Discovery and Data Mining (KDD)",
-            content: "has changed the notification date from 03/12/2023 to 01/01/2024" 
-        }
-    ])
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    const fakeAuth = () =>
-        new Promise((resolve) => {
-            setTimeout(() => resolve('2342f2f1d131rf12'), 250);
-    });
-    const handleLogin = async () => {
-        const token = await fakeAuth();    
-        setToken(true);
-        const origin = location.state?.from?.pathname || '/home';
-        navigate(origin);
-    };
-
-    const handleLogout = () => {
-        setToken(null);
-        navigate('/home');
-      };
     return (
-        <AuthContext.Provider 
-            value={{
-                token,
-                notiList,
-                onLogin: handleLogin,
-                onLogout: handleLogout,
-            }}>
-
-            {props.children}
-
-        </AuthContext.Provider>
+        <AppContext.Provider value = {{state, dispatch}}>
+            {children}
+        </AppContext.Provider>
     )
 }
-export const useAuth = () => {
-    return useContext(AuthContext)
+
+const useAppContext = () => {
+    const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppContextProvider');
+  }
+  return context;
 }
 
+export { AppContextProvider, useAppContext };

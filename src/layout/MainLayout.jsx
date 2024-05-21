@@ -1,9 +1,14 @@
-import React from 'react'
-import { useLocation, Outlet } from 'react-router-dom'
-import Header from '../components/Header'
+
+import { useLocation, Outlet, useNavigate } from 'react-router-dom'
+
+import NavBarDetailPage from '../components/NavBarDetailPage'
+import { useEffect } from 'react'
+import usePageNavigation from '../hooks/usePageNavigation'
+import Header from '../components/Header/Header'
 
 const MainLayout = () => {
     const location = useLocation()
+    usePageNavigation()
   return (
     <>
         {
@@ -11,8 +16,10 @@ const MainLayout = () => {
             ?
             null
             :
-            <Header/>
+              <Header/>
+            
         }
+        {location.pathname.includes("/detail/")&&<NavBarDetailPage/>}
         <Outlet/>
 
     </>

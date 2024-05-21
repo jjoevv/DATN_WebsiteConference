@@ -1,23 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
-import { BrowserRouter, useLocation } from 'react-router-dom'
-import { AuthContextProvider } from './context/AuthContext'
+import './assets/styles/custom.css'
+import './assets/styles/custom_color.css'
+import './assets/styles/responsive.css'
+import { BrowserRouter} from 'react-router-dom'
+import RoutesApp from './routes/RouteApp.jsx'
 
-import RoutesApp from './routes/RoutesApp'
-import MyRouter from './routes/Router'
-import MainLayout from './layout/MainLayout'
+import MainLayout from './layout/MainLayout.jsx'
+import { AppContextProvider } from './context/authContext.jsx'
+
 function App() {
-  
+
   return (
-        <BrowserRouter>
-            <AuthContextProvider>
-              <MainLayout/>
-              <RoutesApp/>
-          </AuthContextProvider>
-        </BrowserRouter>
+    <AppContextProvider>
+      <BrowserRouter>
+        <MainLayout />
+        <RoutesApp />
+      </BrowserRouter>
+    </AppContextProvider>
   )
 }
 

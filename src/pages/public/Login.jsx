@@ -3,9 +3,11 @@ import { Container, Form, Button, ButtonGroup, Stack, Row, Col, Image } from 're
 import { useNavigate, Link } from 'react-router-dom'
 
 import googleIcon from './../../assets/imgs/google.png'
-import { useAuth } from '../../context/AuthContext'
+import useAuth from '../../hooks/useAuth'
+import Loading from '../../components/Loading'
 const Login = () => {
-    const auth = useAuth()
+    const {loading, error, handleLogin, handleLogout } = useAuth();
+    
     const [account, setAccount] = useState({
         email: "",
         password: "",
@@ -17,24 +19,23 @@ const Login = () => {
         const value = { ...account, [event.target.name]: event.target.value }
         setAccount(value)
     }
-    const onSubmit = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault()
-        auth.onLogin()
-        
-        console.log(account)
+        handleLogin(account.email, account.password)
+    
     }
     const chooseSignup = () => {
         navigate('/signup')
     }
     return (
         <Container className="100-w 100-h min-vh-100 d-flex justify-content-center align-items-center text-center" fluid={true} style={{ backgroundColor: "#C2F1EB" }} >
-            <Row className='bg-white rounded-5 d-flex box-area' style={{ width: "1180px" }}>
+            <Row className='bg-white rounded-4 d-flex box-area w-75 h-50 mx-auto'>
                 
-                <Col className='p-5 d-flex flex-column align-items-center justify-content-center' >
+                <Col className='p-1 d-flex flex-column align-items-center justify-content-center ' >
 
-                    <Form onSubmit={onSubmit} style={{maxWidth: "420px"}} >
+                    <Form onSubmit={handleSubmit} className='w-75 p-5'>
                         <h1 className='mb-4 fw-bold' style={{fontSize: "30px", color: "#419489"}}>Log In</h1>
-                        <Button className='border-0' style={{backgroundColor: "#E8F1F3", color: "#434343"}}>
+                        <Button className='border-0 w-100 p-2 rounded-3' style={{backgroundColor: "#E8F1F3", color: "#434343"}}>
                             <Image src={googleIcon} width={20} className="me-2"/>
                             You can join with your Google account</Button>
                         <div className='d-flex flex-row align-items-center'>
@@ -69,35 +70,40 @@ const Login = () => {
                             />
                         </Form.Group>
                         <ButtonGroup className="d-flex justify-content-around mb-3">
-                            <Button className='bg-transparent border-0 p-0' style={{color: "#434343"}}>Forgot Password?</Button>
+                            <Button className='bg-transparent border-0 p-0' style={{color: "#434343"}}>Forgot your password?</Button>
                         </ButtonGroup>
-                        <Button 
-                            type='submit' 
-                            className='border-0 fw-bold rounded-3 p-2' 
-                            style={{width: "140px", fontSize: "20px", backgroundColor: "#419489"}}>
-                                
-                                LOG IN 
-                            </Button>
-                        <ButtonGroup className="my-3  mx-5 d-flex align-items-center ">
+                        <div className='d-flex flex-column justify-content-center align-items-center'>
+                            {error && <span className='text-danger'>{error}</span>}
+                            {loading && <Loading/>}
+                                <Button
+                                    type='submit'
+                                    className='border-0 fw-bold rounded-4 p-2'
+                                    style={{width: "140px", fontSize: "20px", backgroundColor: "#419489"}}>
+                            
+                                    LOG IN
+                                </Button>
+                        </div>
+                        <div className="my-3 mx-3 d-flex align-items-center justify-content-center">
                             <span htmlFor="#signup">Don't have an account?</span>
                             <Button
-                                className='bg-transparent border-0 fw-bold'
+                                className='bg-transparent border-0 fw-bold p-0 m-0 w-25'
                                 style={{fontSize: "20px", color: "#419489"}}
                                 onClick={chooseSignup}>
-                                <span>SIGN UP</span>
+                                SIGN UP
                             </Button>
-                        </ButtonGroup>
+                        </div>
                     </Form>
                 </Col>
-                <Col sm={4} className='d-flex flex-column align-items-center justify-content-center rounded-end-5 text-light' style={{backgroundColor: "#419489"}}>
+                <Col sm={4} className='d-flex flex-column align-items-center justify-content-center rounded-end-4 text-light' style={{backgroundColor: "#419489"}}>
                     <span className='h1 mb-2'>Welcome Back!</span>
-                    <span>Enter your personal account and keep following conferences/magazines!</span>
+                    <span className='mt-3'>Enter your personal account and keep following conferences/magazines!</span>
 
                     <div className=' border border-1 p-2 mt-5 border-white rounded-2'>
                         <Link to='/' className='fs-6 text-light'>  {"<  "}Back to Homepage</Link>
                     </div>
                 </Col>
             </Row>
+            
         </Container>
     )
 }
