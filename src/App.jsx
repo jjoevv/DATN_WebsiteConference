@@ -2,7 +2,7 @@ import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import './assets/styles/custom.css'
 import './assets/styles/custom_color.css'
 import './assets/styles/responsive.css'
-import { BrowserRouter} from 'react-router-dom'
+import { BrowserRouter, HashRouter} from 'react-router-dom'
 import RoutesApp from './routes/RouteApp.jsx'
 
 import MainLayout from './layout/MainLayout.jsx'
@@ -12,10 +12,10 @@ function App() {
 
   return (
     <AppContextProvider>
-      <BrowserRouter>
+      <HashRouter>
         <MainLayout />
         <RoutesApp />
-      </BrowserRouter>
+      </HashRouter>
     </AppContextProvider>
   )
 }
