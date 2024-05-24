@@ -15,6 +15,7 @@ const useAuth = () => {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState(false)
+  const [userId, setUserId] = useState('')
   const navigate = useNavigate()
 
   const handleLogin = async (email, password) => {
@@ -36,7 +37,7 @@ const useAuth = () => {
         dispatch(loginSuccess(userData));
         saveUserToLocalStorage(userData)
         savetokenToLocalStorage(userData.accessToken)
-        navigate('/home')
+        navigate('/')
       } else {
         const errorData = await response.json();
         dispatch(loginFailure(errorData.message));
@@ -75,7 +76,7 @@ const useAuth = () => {
         const userData = responseData.data
         dispatch(registrationSuccess(userData));
         saveUserToLocalStorage(userData)
-        navigate('/home')
+        navigate('/')
 
         // Optionally, you can perform additional actions like redirecting to a login page
       } else {
@@ -93,13 +94,12 @@ const useAuth = () => {
   const handleLogout = () => {
     dispatch(logoutUser());
     deleteUserFromLocalStorage()
-    navigate('/home')
+    navigate('/')
     window.location.reload()
   };
 
 
   const updateProfile = (updateData) => {
-    console.log({updateData})
     fetch(`${baseURL}/user/infomation`, {
       method: 'PUT',
       headers: {
@@ -141,6 +141,33 @@ const useAuth = () => {
     }
   }
 
+  const getCurrentUser = async () => {
+    let storedToken = JSON.parse(localStorage.getItem('token'));
+
+    const tokenHeader = token ? token : storedToken
+      try {
+        const response = await fetch(`${baseURL}/user/infomation`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${tokenHeader}`
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error(response.message);
+        }
+        else {
+          const data = await response.json()
+          const user_id = data.data.id
+          sessionStorage.setItem('user-id', JSON.stringify(user_id))
+        setUserId(user_id)
+        }
+      } catch (error) {
+          console.error('Error:', error);
+        
+      }
+  }
 
   return {
     user: state.user,
@@ -148,11 +175,13 @@ const useAuth = () => {
     error: error,
     message: message,
     status: status,
+    userId,
     handleLogin,
     handleRegister,
     handleLogout,
     updateProfile,
     changePassword,
+    getCurrentUser
   };
 };
 

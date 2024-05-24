@@ -6,9 +6,6 @@ import UnfollowIcon from './../assets/imgs/unfollow.png'
 import FollowIcon from './../assets/imgs/follow.png'
 import TimeIcon from './../assets/imgs/time.png'
 import LocationIcon from './../assets/imgs/location.png'
-import { useLocation, useNavigate } from 'react-router-dom'
-import useConference from '../hooks/useConferences'
-import useAuth from '../hooks/useAuth'
 import useFollow from '../hooks/useFollow'
 import { isObjectInList } from '../utils/checkExistInList'
 
@@ -19,15 +16,15 @@ import { isUpcoming, sortByFollow, sortConferences } from '../utils/sortConferen
 import ArrowIcon from './../assets/imgs/arrow.png'
 import Loading from './Loading'
 import { getDateValue } from '../utils/formatDate'
-import useLocalStorage from '../hooks/useLocalStorage'
 import Filter from './Filter/Filter'
-import { checkExistValue, getUniqueConferences } from '../utils/checkFetchedResults'
+import { checkExistValue } from '../utils/checkFetchedResults'
+import ButtonGroupUpdate from './PostConference/ButtonGroupUpdate'
+import { useNavigate } from 'react-router-dom'
 
-const Conference = ({ conferencesProp, loading, totalPages, onReload, totalConferences }) => {
-    const {user} = useLocalStorage()
-    const { listFollowed, followConference, unfollowConference, getListFollowedConferences } = useFollow()
-    const {total, optionsSelected} = useSearch()
-
+const Conference = ({ conferencesProp, loading, totalPages, onReload, totalConferences, isPost }) => {
+    
+    const { listFollowed, followConference, unfollowConference } = useFollow()
+    const {optionsSelected} = useSearch()
     const navigate = useNavigate()
     const [page, setPage] = useState(0)
     const [selectOptionSort, setSelectOptionSort] = useState('')
@@ -36,10 +33,16 @@ const Conference = ({ conferencesProp, loading, totalPages, onReload, totalConfe
     
     const itemsPerPage = 7;
     const pagesVisited = page * itemsPerPage;
-    
+
     useEffect(()=>{
         setPage(0)
-    },[conferencesProp])
+    }, [optionsSelected])
+
+    useEffect(()=>{
+        const sortedConf = sortByFollow(conferencesProp, listFollowed)
+        setDisplayedConferences(sortedConf)
+        setcopiedConferences(sortedConf)
+    },[conferencesProp, listFollowed])
 
    
     const handlePageClick = (event) => {
@@ -65,10 +68,10 @@ const Conference = ({ conferencesProp, loading, totalPages, onReload, totalConfe
             setDisplayedConferences([...copiedConferences])
         }
         else {
-            const sortedConferences = sortConferences(value, displayConferences)
+            const sortedConferences = sortConferences(value, [...copiedConferences])
             setDisplayedConferences(sortedConferences)
         }
-
+        setPage(0)
     };
 
     const getLengthString = (string) => string.length
@@ -111,7 +114,7 @@ const Conference = ({ conferencesProp, loading, totalPages, onReload, totalConfe
                     ?
                     <>
                     {
-                    conferencesProp
+                    displayConferences
                         .slice(pagesVisited, pagesVisited + itemsPerPage)
                         .map((conf) => (
                             <Card
@@ -119,12 +122,12 @@ const Conference = ({ conferencesProp, loading, totalPages, onReload, totalConfe
                                 style={{ }}
                                 id={conf.id}
                                 key={conf.id}>
-                                <Stack className='p-0' direction='horizontal'>
+                                <Stack className='p-0 w-100' direction='horizontal'>
                                     <div className='bg-white rounded-4 fw-bolder d-flex align-items-center justify-content-center acronym-container '>
                                         <span className={`fw-bold ${getLengthString(conf.information.acronym) > 6 ? 'fs-6' : 'fs-4'}`}>{conf.information.acronym}</span>
                                     </div>
 
-                                    <div className=''>
+                                    <div className='w-100'>
                                         <Card.Body className='' onClick={() => chooseConf(conf.id)}>
                                             <Card.Title className='text-color-black'>
                                                 <div className='fw-bold d-flex align-items-start'>
@@ -185,7 +188,17 @@ const Conference = ({ conferencesProp, loading, totalPages, onReload, totalConfe
                                             </Card.Text>
                                         </Card.Body>
 
-                                        {
+                                      {
+                                        isPost
+                                        ?
+                                        <>
+                                        <div className='d-flex justify-content-end'>
+                                            <ButtonGroupUpdate conference={conf}/>
+                                        </div>
+                                        </>
+                                        :
+                                        <>
+                                          {
                                             isObjectInList(conf.id, listFollowed)
                                                 ?
                                                 <Button className='icon-follow' onClick={() => unfollowConference(conf.id)} title='Unfollow'>
@@ -198,6 +211,8 @@ const Conference = ({ conferencesProp, loading, totalPages, onReload, totalConfe
                                                     <span>Follow</span>
                                                 </Button>
                                         }
+                                        </>
+                                      }
 
                                     </div>
 

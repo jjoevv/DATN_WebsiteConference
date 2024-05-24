@@ -111,12 +111,7 @@ const sortAndFilterConferences = (conferences) => {
 };
 
 const sortByFollow = (conferences, followedConferences) => {
-  console.log({conferences, followedConferences})
-  // Kiểm tra nếu danh sách followedConferences rỗng
-  if (followedConferences.length || conferences === undefined || conferences.length === 0) {
-    // Trả về danh sách conferences không được sắp xếp
-    return conferences
-  }
+  
   // Hàm sắp xếp để ưu tiên các conf đã follow
   const sortedConferences = [...conferences].sort((a, b) => {
     const isAFollowedIndex = followedConferences.findIndex(conf => conf.id === a.id);
@@ -130,11 +125,11 @@ const sortByFollow = (conferences, followedConferences) => {
       return 0; // Giữ nguyên thứ tự
     }
   });
-  console.log({sortedConferences})
   return sortedConferences;
 };
 
 const sortConferences = (sortby, conferences) => {
+
   const hasElementsInList = checkExistValue(conferences)
   const isExist = hasElementsInList.some(value => value === true);
   if (isExist || conferences.length > 0) {

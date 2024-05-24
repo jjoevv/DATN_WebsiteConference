@@ -1,15 +1,14 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 import { useAppContext } from "../context/authContext"
 
 import { baseURL } from "./api/baseApi"
-import { getAllConf, getOneConf, requestConference } from "../actions/confAction"
+import { getAllConf, getOneConf } from "../actions/confAction"
 import moment from "moment"
 
 const useConference = () => {
   const { state, dispatch } = useAppContext()
-  const [quantity, setQuantity] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
+  const [quantity] = useState(0)
   const [error, setError] = useState('')
   const [totalPages, setTotalPages] = useState(0)
   const [totalConferences, setTotalConferences] = useState(0)
@@ -17,12 +16,17 @@ const useConference = () => {
 
   const fetchData = useCallback(async (page) => {
     try {
-      const response = await fetch(`${baseURL}/conference?page=${page}&size=7`);
+      const response = await fetch(`${baseURL}/conference?page=${page}&size=7`,{
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      dispatch(getAllConf(data.data));
       return data
     } catch (error) {
       setError(error);
@@ -36,7 +40,7 @@ const useConference = () => {
         const firstPageData = await fetchData(1);                
         const totalPages = firstPageData.maxPages; // Lấy số lượng trang từ dữ liệu đầu tiên
         const totalConf = firstPageData.maxRecords
-        console.log({totalPages, totalConf})
+        
         const total = firstPageData.maxPages; // Lấy số lượng trang từ dữ liệu đầu tiên
         setTotalConferences(totalConf)
         setTotalPages(total)
@@ -112,7 +116,6 @@ const useConference = () => {
     conferences: state.conferences,
     conference: state.conference,
     quantity: quantity,
-    filterOptions: state.filterOptions,
     loading,
     error: error,
     totalPages,

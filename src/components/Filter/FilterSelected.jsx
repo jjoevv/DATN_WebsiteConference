@@ -9,13 +9,14 @@ import useConference from "../../hooks/useConferences";
 import { findKeyByKeyword, getUniqueConferences,  } from "../../utils/checkFetchedResults";
 
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const FilterSelected = ({onDelete, onClearAll}) => {
-  const { deleteKeyword, clearKeywords, optionsSelected } = useSearch()
+  const { deleteKeyword, clearKeywords, optionsSelected, getKeyword } = useSearch()
   
   const [keywordsSelected, setKeywordsSelected] = useState(null)
   const [total, setTotal] = useState(0)
-  
+  const {pathname} = useLocation()
   useEffect(()=>{
     const uniqueValues = getUniqueConferences(optionsSelected)
     setKeywordsSelected(uniqueValues)
@@ -41,8 +42,13 @@ const FilterSelected = ({onDelete, onClearAll}) => {
                 onClick={() => handleDeletekeyword(keyword)}
                 key={index}
                 className="fs-6 text-color-black py-1 px-2 fw-bold border bg-transparent border-secondary rounded-pill d me-3 mb-3  d-flex align-items-center ">
-                  
-                {keyword}
+                {
+                  pathname==='/followed' || pathname === '/yourconferences'
+                  ?
+                  getKeyword(keyword)
+                  :
+                  keyword
+                }
                  
                   <Image width={20} src={deleteIcon} alt="" className="ms-1" />
               </Button>

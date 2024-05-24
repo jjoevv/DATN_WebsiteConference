@@ -1,8 +1,7 @@
 //lấy dữ liệu từ danh sách để đưa vào dropdown
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import useSearch from '../../hooks/useSearch'
 
-import useConference from '../../hooks/useConferences'
 import { capitalizeFirstLetter } from '../../utils/formatWord'
 import Select from 'react-select'
 
@@ -10,13 +9,17 @@ import data from './options.json'
 
 
 const customStyles = {
+    menu: (provided) => ({
+        ...provided,
+        zIndex: 9999, // Đặt giá trị z-index cao để luôn nằm trên các thành phần khác
+      }),
     control: (provided, state) => ({
         ...provided,
         border: '1px solid #4EB1A4', // Điều chỉnh màu và độ dày của border khi focus
         borderRadius: '4px', // Điều chỉnh độ cong của góc
         boxShadow: state.isFocused ? '0 0 0 0.2rem rgba(76, 139, 245, 0.25)' : null, // Hiệu ứng boxShadow khi focus
         '&:hover': {
-            border: '2px solid #4c8bf5', // Điều chỉnh màu và độ dày của border khi hover
+            border: '1px solid #4c8bf5', // Điều chỉnh màu và độ dày của border khi hover
         },
     }),
     option: (provided, state) => ({
@@ -42,10 +45,8 @@ const CustomOption = ({ innerProps, label, isSelected }) => (
     </div>
 );
 const Options = ({ label, onApply }) => {
-    const { filterOptions } = useConference()
-    const { total, setTotal, getOptionsFilter, sendFilter, handleCountAllConf } = useSearch()
+    const { filterOptions, getOptionsFilter, sendFilter, addKeywords } = useSearch()
     const [options, setOptions] = useState([])
-    const { addKeywords } = useSearch()
     const handleOptionChange = async (item) => {
         
         onApply(label, item[0].label)
@@ -53,7 +54,6 @@ const Options = ({ label, onApply }) => {
         const keyword = `${item[0].label} (${maxRecords})`
         addKeywords(label,[keyword])
     }
-
     useEffect(() => {
         const staticValue = ["location", "type", "category"]
         

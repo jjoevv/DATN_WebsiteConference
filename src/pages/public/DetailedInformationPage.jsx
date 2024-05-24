@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom'
 import useFollow from '../../hooks/useFollow'
 const DetailedInformationPage = () => {
     const { conference, handleGetOne, getConferenceDate, getLocation } = useConference()
-    const {listFollowed, getListFollowedConferences} = useFollow()
+    const {listFollowed, getListFollowedConferences, followConference, unfollowConference} = useFollow()
     const [loading, setLoading] = useState(false)
     const conf_id = useParams()
     useEffect(() => {

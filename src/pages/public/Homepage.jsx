@@ -7,53 +7,61 @@ import Conference from '../../components/Conference'
 
 import useSearch from '../../hooks/useSearch'
 import useConference from '../../hooks/useConferences'
-import { checkExistValue, getUniqueConferences, mergeConferencesByKeyword } from '../../utils/checkFetchedResults'
+import { checkExistValue, mergeConferencesByKeyword } from '../../utils/checkFetchedResults'
 import useFollow from '../../hooks/useFollow'
 import useFilterStorage from '../../hooks/useFilterStorage'
 import Search from '../../components/Filter/Search'
-import { Row } from 'react-bootstrap'
 import useFilter from '../../hooks/useFilter'
+import HeaderNoti from '../../components/Notification/HeaderNoti'
+import usePost from '../../hooks/usePost'
 
 const Homepage = () => {
     const [showSlideShow, setShowSlideShow] = useState(true)
-    const {total, optionsSelected, getOptionsFilter} = useSearch()
+    const { optionsSelected, getOptionsFilter} = useSearch()
     const {loading: loadingAll, conferences, totalPages: totalPagesAllConf, totalConferences, handleGetList} = useConference()
-    const {getListFollowedConferences} = useFollow()
+    const {listFollowed, getListFollowedConferences} = useFollow()
+    const {getPostedConferences}= usePost()
     const [check, setCheck] = useState(false)
     const [fetchParams, setFetchParams] = useState({ key: '', keyword: '' });
-    const {selectOptionFilter, inputFilter, resultInputFilter, searchInput}= useFilter()
-    const { dataFilters, loading, clearKeyValues, clearAllKeywords } = useFilterStorage(fetchParams.key, fetchParams.keyword);
+    const {selectOptionFilter, resultInputFilter}= useFilter()
+    const { dataFilters, clearKeyValues, clearAllKeywords } = useFilterStorage(fetchParams.key, fetchParams.keyword);
 
     const [displayConferences, setDisplayedConferences] = useState([])
     const [backupDisplayConf, setBackupDisplayConf] = useState([])
-   
+    const [loadingFilter, setLoadingFilter] = useState(false)
     useEffect(()=>{
       handleGetList()
     }, [conferences])
 
+    useEffect(()=>{
+      getListFollowedConferences()
+    },[])
+
+    useEffect(()=>{
+      getPostedConferences()
+    },[])
    useEffect(()=>{
     const isAppliedFilter = checkExistValue(optionsSelected).some(value => value === true);
-    getListFollowedConferences()    
+    
     getOptionsFilter("", [])
     setCheck(isAppliedFilter)
 
 
     const displayList = mergeConferencesByKeyword(dataFilters, selectOptionFilter)
     
-    
 
     setDisplayedConferences(displayList)
     setBackupDisplayConf(displayList)
-    console.log({displayList, optionsSelected})
     
-
+    const isLoading = JSON.parse(sessionStorage.getItem('loadingFilterResult')) 
+    setLoadingFilter(isLoading)
    },[selectOptionFilter, dataFilters, resultInputFilter])
 
    
    useEffect(()=>{
     
     const commonConfs = backupDisplayConf.filter(item1 => resultInputFilter.some(item2 => item2.id === item1.id));
-    console.log({commonConfs, displayConferences, resultInputFilter, inputFilter})
+   
     setDisplayedConferences(commonConfs)
    }, [resultInputFilter])
 
@@ -65,7 +73,7 @@ const Homepage = () => {
       const displayConf = check ? displayConferences : conferences;
       const totalPagesDisplay = check ? Math.ceil(displayConf.length / 7) : totalPagesAllConf;
       const totalConfDisplay = check ? displayConf.length : totalConferences
-      const isLoading = check ? loading : loadingAll
+      const isLoading = check ? loadingFilter : loadingAll
 
   return (
     <div style={{marginTop: "100px"}}>        

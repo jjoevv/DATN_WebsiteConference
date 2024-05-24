@@ -10,7 +10,6 @@ import Loading from '../Loading';
 
 const FollowButton = () => {
     const { listFollowed, followConference, unfollowConference} = useFollow()
-    const {user} = useLocalStorage()
     const [loading, setLoading] = useState(false)
     const id = useParams()
 
@@ -19,6 +18,7 @@ const handleFollow = async () => {
     const status = await followConference(id.id)
     if(status){
         setLoading(false)
+        
     }
 }
 

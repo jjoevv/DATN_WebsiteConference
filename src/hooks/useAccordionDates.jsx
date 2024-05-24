@@ -108,7 +108,6 @@ const useAccordionDates = () => {
   };
   
   const separateDatesByRound = (importantDates) => {
-    console.log({importantDates})
     const separatedDates = {};
     
     importantDates.forEach(date => {

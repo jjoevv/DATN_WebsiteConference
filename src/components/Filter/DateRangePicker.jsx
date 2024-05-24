@@ -32,7 +32,6 @@ const DateRangePicker = ({ label, onApply }) => {
     const keywordFormat = `${formatLabel(label)}: from ${formatDate(startDate)} to ${formatDate(endDate)}`        
     const quantity = await sendFilterDate(startDate, endDate, label, [keywordFormat])
     const keyword = `${keywordFormat} (${quantity})`
-    console.log({keywordFormat, keyword})
     addKeywords(label, [keyword])
     onApply(label, keyword)
   };

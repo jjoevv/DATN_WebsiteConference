@@ -3,20 +3,23 @@ import { getUniqueConferences } from '../utils/checkFetchedResults'
 import useSearch from './useSearch'
 import { useAppContext } from '../context/authContext'
 import { inputOptionFilterKeyword, selectOptionFilterKeyword } from '../actions/filterActions'
+import { useLocation } from 'react-router-dom'
 
 const useFilter = () => {
   const { state, dispatch } = useAppContext()
-  const { optionsSelected } = useSearch()
+  const { optionsSelected, getKeyword } = useSearch()
   const [optionsFilter, setOptionsFilter] = useState([])
   const [selectOptionFilter, setSelectOptionFilter] = useState([])
   const [inputFilter, setInputFilter] = useState('')
+
+  const {pathname} = useLocation()
 
   useEffect(() => {
     let transformedOptions = []
     const uniqueValues = getUniqueConferences(optionsSelected)
     transformedOptions = uniqueValues.map((item, index) => ({
       value: index + 1,
-      label: item,
+      label: pathname==='/followed' || pathname === '/yourconferences' ? getKeyword(item) : item ,
       isSelected: selectOptionFilter.some(option => option.label === item)
     }));
     setOptionsFilter(transformedOptions)
@@ -26,7 +29,6 @@ const useFilter = () => {
 
 
   const handleChangeOptions = (selectedOptions) => {
-    console.log({ selectOptionFilter })
     setSelectOptionFilter(selectedOptions);
     dispatch(selectOptionFilterKeyword(selectedOptions))
   };
@@ -36,7 +38,6 @@ const useFilter = () => {
   }
 
   const searchInput = (keyword) => {
-    console.log({ keyword })
     const dataFilter = sessionStorage.getItem('dataFilters');
     const data = JSON.parse(dataFilter)
     if (dataFilter) {
@@ -46,13 +47,11 @@ const useFilter = () => {
     for (const category in data) {
       const filteredObjects = data[category].filter(obj => searchInObject(obj, keyword));
       if (filteredObjects.length > 0) {
-        console.log({filteredObjects})
         result.push(...filteredObjects);
       }
     }
       dispatch(inputOptionFilterKeyword(result))
 
-      console.log({ data, keyword, result })
     }
     return []
   }

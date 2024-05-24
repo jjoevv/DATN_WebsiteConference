@@ -149,14 +149,26 @@ const appReducer = (state, action) => {
         case actionTypes.FOLLOW:
             return {
                 ...state,
-                listFollowed: [...state.listFollowed, ...action.payload],
+                listFollowed: action.payload,
             };
+
         case actionTypes.UNFOLLOW:
             return {
                 ...state,
                 listFollowed: state.listFollowed.filter(item => item.id !== action.payload.id),
             };
+
+        case actionTypes.GET_POSTED_CONFERENCES:
+            return {
+                ...state,
+                postedConferences: action.payload,
+            };
         case actionTypes.GET_NOTES:
+            return {
+                ...state,
+                notes: action.payload,
+            };
+        case actionTypes.GET_NOTIFICATIONS:
             return {
                 ...state,
                 notes: action.payload,

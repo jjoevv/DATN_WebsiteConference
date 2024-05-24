@@ -129,18 +129,15 @@ const UpdateConference = ({ show, handleClose, handleCheckStatus }) => {
         for (const field in requiredFields) {
             if (formData[field] === '' || formData[field] === undefined || (field === 'fieldsOfResearch' && formData[field].length === 0)) {
                 allValid = false;
-                console.log('allvalid', allValid)
                 requiredFields[field] = false
 
             } else {
                 requiredFields[field] = true
             }
         }
-        console.log(formData)
+        
         if (allValid) {
-            console.log(formData)
-            const response =  postConference(formData)
-            console.log({response})
+            const response =  postConference(formData)s
             if(response.status){
 
                 handleCheckStatus(response.status, response.message)

@@ -70,6 +70,8 @@ export const initialState = {
     category: [],
   },
   
+  //postedConf
+  postedConferences: [],
 
   //notes
   notes: []

@@ -1,10 +1,8 @@
 import { useAppContext } from '../context/authContext'
-import { addFilter, clearFilters, getResult, getoptionsSelected, removeFilter, addFilterDateResults } from '../actions/filterActions'
+import { addFilter, clearFilters, getResult, getoptionsSelected, removeFilter } from '../actions/filterActions'
 
 import { baseURL } from './api/baseApi'
 import { formatDateFilter } from '../utils/formatDate'
-import { convertToLowerCaseFirstLetter } from '../utils/formatWord'
-import { requestApi } from '../actions/actions'
 import { useEffect, useState } from 'react'
 import useToken from './useToken'
 import { useLocation } from 'react-router-dom'
@@ -20,46 +18,43 @@ const useSearch = () => {
   const [total, setTotal] = useState(0)
   const location = useLocation()  
 
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      // Xử lý trước khi chuyển trang
-      clearFilters()
-      return event.returnValue = ''; // Hiển thị thông báo trên trình duyệt
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
-
   const getOptionsFilter = async (label, staticData) => {
     const params = ["source", "for", "acronym", "rank"];
+    const existedOptions = state.filterOptions
     if (label === "") {
       for (const param of params) {
-        if (param === "acronym") {
-          try {
-            
-            const response = await fetch(`${baseURL}/conf/${param}`);
-            const data = await response.json();
-            // Gửi action để cập nhật dữ liệu cho label hiện tại
-            dispatch(getoptionsSelected({ [param]: data.data }));
-
-          } catch (error) {
-            console.error(`Error fetching data for ${param}:`, error);
+        if(!existedOptions[param]){
+          if (param === "acronym") {
+            try {
+              
+              const response = await fetch(`${baseURL}/conf/${param}`,
+                {
+                  method: 'GET',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                  },
+                }
+              );
+              const data = await response.json();
+              // Gửi action để cập nhật dữ liệu cho label hiện tại
+              dispatch(getoptionsSelected({ [param]: data.data }));
+  
+            } catch (error) {
+              console.error(`Error fetching data for ${param}:`, error);
+            }
           }
-        }
-        else {
-
-          try {
-            const response = await fetch(`${baseURL}/${param}`);
-            const data = await response.json();
-            // Gửi action để cập nhật dữ liệu cho label hiện tại
-            dispatch(getoptionsSelected({ [param]: data.data }));
-
-          } catch (error) {
-            console.error(`Error fetching data for ${param}:`, error);
+          else {
+  
+            try {
+              const response = await fetch(`${baseURL}/${param}`);
+              const data = await response.json();
+              // Gửi action để cập nhật dữ liệu cho label hiện tại
+              dispatch(getoptionsSelected({ [param]: data.data }));
+  
+            } catch (error) {
+              console.error(`Error fetching data for ${param}:`, error);
+            }
           }
         }
        
@@ -82,7 +77,6 @@ const useSearch = () => {
     
     const start = formatDateFilter(startDate)
     const end = formatDateFilter(endDate)
-    console.log({ keywordFormat, label })
     let data = []
     if (label === 'submissionDate') {
       const response = await fetch(`${baseURL}/conference?subStart=${start}&subEnd=${end}`);
@@ -156,7 +150,6 @@ const useSearch = () => {
             // Xử lý dữ liệu khi nhận được response
             dispatch(getResult(label, data.data));
             setTotal(data.maxRecods)
-            const maxRecords = data.data.maxRecods + total
 
             //setTotal(maxRecords)
             return data.maxRecords
@@ -167,26 +160,33 @@ const useSearch = () => {
         });
 };
 
-const getQuantity = (conferenceList) => {
-  let count = 0
+const getKeyword = (keyword) => {
+  const parts = keyword.split('(');
+  const getKeyword = parts[0].trim();
+  const storedData = sessionStorage.getItem('dataFilters');
+
+  if (!storedData) {
+    return 0;
+  }
+  const parsedData = JSON.parse(storedData);
+  const listFromStorage = parsedData[getKeyword] || [];
+  let commonCount = 0
+
   if(location.pathname==='/followed'){
-    
-    count = conferenceList.filter(obj1 => listFollowed.some(obj2 => obj1.id === obj2.id)).length;
+    const setToCompare = new Set(listFollowed.map(conf => conf.id));
+    commonCount = listFromStorage.filter(conf => setToCompare.has(conf.id)).length;
     
   }
   else if(location.pathname==='/yourconferences'){
-    count = conferenceList.filter(obj1 => postedConferences.some(obj2 => obj1.id === obj2.id)).length;
-    
+    const setToCompare = new Set(postedConferences.map(conf => conf.id));
+    commonCount = listFromStorage.filter(conf => setToCompare.has(conf.id)).length;
   }
-  else {
-    count = conferenceList.length
-  }
-  return count
+  const newKeyword = `${getKeyword} (${commonCount})` 
+  return newKeyword
 }
 
 const extractQuantity = (keyword) => {
   const regex = /\((\d+)\)/;
-  console.log({keyword})
   // Sử dụng biểu thức chính quy để tìm kiếm giá trị trong ngoặc tròn
   const match = keyword.match(regex);
 
@@ -213,7 +213,7 @@ const extractQuantity = (keyword) => {
     deleteKeyword,
     clearKeywords,
     sendFilter,
-    getQuantity,
+    getKeyword,
     extractQuantity
   }
 }

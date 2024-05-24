@@ -187,3 +187,26 @@ button.bg-yellow-normal:active {
     background-image: linear-gradient(to bottom, #bcedd8 , #f8fdfb);
   }
 
+.nav-link{
+    color: #054142;
+    border-bottom: 2px solid #054142;
+}
+
+.nav-link:hover{
+    color: #043435;
+}
+.nav-link.active{
+    color: #024546 !important;
+    font-weight: 600;
+
+}
+
+.nav-item.custom-tab {
+    color:  #619eab !important;
+  }
+  
+  /* Màu tiêu đề tab khi được bấm */
+  .custom-tab:hover,
+ .custom-tab:focus {
+    color: #4d7e89;
+  }

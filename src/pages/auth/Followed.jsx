@@ -6,54 +6,87 @@ import useSearch from '../../hooks/useSearch'
 
 import useLocalStorage from '../../hooks/useLocalStorage'
 import Loading from '../../components/Loading'
-import { checkExistValue, getUniqueConferences } from '../../utils/checkFetchedResults'
-import ResultFilter from '../../components/Filter/ResultFilter'
+import { checkExistValue, mergeConferencesByKeyword } from '../../utils/checkFetchedResults'
+
 import Search from '../../components/Filter/Search'
+import useFilter from '../../hooks/useFilter'
+import useFilterStorage from '../../hooks/useFilterStorage'
 
 const Followed = () => {
-  const { listFollowed, getListFollowedConferences } = useFollow()
-  const { appliedFilterResult, optionsSelected } = useSearch()
-  const [displayConferences, setdisplayConferences] = useState([])
+  const { loading: loadingFollow, listFollowed, getListFollowedConferences } = useFollow()
+  const { getOptionsFilter, optionsSelected } = useSearch()
+  const [check, setCheck] = useState(false)
   const { user } = useLocalStorage()
-  useEffect(()=>{
-    getListFollowedConferences()
-  },[user])
-  
+
+  const { selectOptionFilter, resultInputFilter } = useFilter()
+  const [fetchParams, setFetchParams] = useState({ key: '', keyword: '' });
+  const { loading: loadingFilter, dataFilters, clearKeyValues, clearAllKeywords } = useFilterStorage(fetchParams.key, fetchParams.keyword);
+  const [backupDisplayConf, setBackupDisplayConf] = useState([])
+  const [displayConferences, setDisplayConferences] = useState(listFollowed)
+
   useEffect(() => {
+    getListFollowedConferences()
+  }, [])
+
+  useEffect(() => {
+    if (!listFollowed) {
+      getListFollowedConferences()
+    }
+  }, [user])
+
+  useEffect(() => {
+    getOptionsFilter("", [])
     const isAppliedFilter = checkExistValue(optionsSelected).some(value => value === true);
-    if (isAppliedFilter) {
-      console.log('ap dung fileter', )
-      const followedFilter = getUniqueConferences(appliedFilterResult)
-      const filterResults = followedFilter.filter(itemFilter => listFollowed.some(itemPosted => itemPosted.id === itemFilter.id));
-      console.log({followedFilter, listFollowed, filterResults})
-      setdisplayConferences(filterResults)
-    }
-    else {
-      setdisplayConferences(listFollowed)
-    }
+    
+    setCheck(isAppliedFilter)
+    const displayList = mergeConferencesByKeyword(dataFilters, selectOptionFilter)
+    const followedConf = displayList.filter(item1 => listFollowed.some(item2 => item2.id === item1.id));
 
-  }, [optionsSelected, listFollowed])
+    setDisplayConferences(followedConf)
+    setBackupDisplayConf(followedConf)
 
- 
+  }, [selectOptionFilter, dataFilters, resultInputFilter, listFollowed])
+
+  useEffect(() => {
+    const commonConfs = backupDisplayConf.filter(item1 => resultInputFilter.some(item2 => item2.id === item1.id)); setDisplayConferences(commonConfs)
+  }, [resultInputFilter])
+
+  const handleApplyFilter = (key, keyword) => {
+    setFetchParams({ key, keyword });
+  };
+  const displayConf = check ? displayConferences : listFollowed;
+  const totalPagesDisplay = check ? Math.ceil(displayConf.length / 7) : Math.ceil(listFollowed.length / 7);
+  const totalConfDisplay = check ? displayConf.length : listFollowed.length
+  const isLoading = check ? loadingFilter : loadingFollow
+  
   return (
-    <Container  
+    <Container
       fluid
       className='py-5 ' style={{ marginLeft: "350px", marginTop: "60px" }}>
       <h4 className=''>Followed Conference</h4>
       <h6>{`Review the list of events you previously saved. Pay attention to the time so you don't miss it.`}</h6>
 
       {
-        listFollowed && listFollowed.length > 0
-          ?
+        !loadingFollow ?
           <>
-          <div style={{ width: "1000px" }}>
-          <Search/>
-        </div>
-            <ResultFilter conferencesProp={displayConferences} width={960} />
+            {
+              listFollowed && listFollowed.length > 0
+                ?
+                <>
+                  <Search onApply={handleApplyFilter} onDelete={clearKeyValues} onClearAll={clearAllKeywords} />
+
+                  <Conference conferencesProp={displayConf} onReloadPage={getListFollowedConferences} totalPages={totalPagesDisplay} totalConferences={totalConfDisplay} loading={isLoading} />
+                </>
+                :
+                <p>{`You haven't followed any conferences yet. `}</p>
+            }
           </>
           :
-          <p>{`You haven't followed any conferences yet. `}</p>
+          <div className='mt-5'>
+            <Loading onReload={getListFollowedConferences} />
+          </div>
       }
+
 
     </Container>
   )

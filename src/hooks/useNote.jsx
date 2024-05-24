@@ -124,7 +124,6 @@ const useNote = () => {
         const data = await response.json(); 
         // Sử dụng hàm này để lấy thông tin từ danh sách dựa trên OrganizationOrgId
         const newDataByOrgId = extractDataByOrgId(listFollowed, data.data);
-        console.log({newDataByOrgId})
         dispatch(getNotes(newDataByOrgId))
         setLoading(false)
       }

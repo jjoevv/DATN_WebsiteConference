@@ -6,12 +6,13 @@ import NotiIcon from './../../assets/imgs/noti.png'
 import AvatarDropdown from './AvatarDropdown'
 import useLocalStorage from '../../hooks/useLocalStorage'
 import usePageNavigation from '../../hooks/usePageNavigation'
-
+import HeaderNoti from '../Notification/HeaderNoti'
+import useNotification from '../../hooks/useNotification'
 const Header = () => {
   const {user} = useLocalStorage();
   const navigate = useNavigate()
   const {goToPreviousPage} = usePageNavigation()
-  const [notifications, setNotifications] = useState([])
+const {notifications}  = useNotification()
   useEffect(()=>{ 
     if (user === null){
       navigate('/home')
@@ -23,6 +24,8 @@ const Header = () => {
       
       goToPreviousPage(event);
   },[])
+
+
   return (
     <Navbar expand="md" 
     id='header'
@@ -30,7 +33,7 @@ const Header = () => {
     
     >
       <Container fluid className='d-flex justify-content-between shadow-sm px-5'>
-        <Navbar.Brand href="/home" className='my-header-brand'>ConfHub</Navbar.Brand>
+        <Navbar.Brand href="/" className='my-header-brand'>ConfHub</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto d-flex align-items-center">
@@ -62,7 +65,7 @@ const Header = () => {
                 <Image src={NotiIcon} width={20} height={24} className=' text-center m-auto' />
               </Dropdown.Toggle>
 
-
+              <HeaderNoti/>
               <Dropdown.Menu className='shadow' style={{ right: 0, left: 'auto' }}>
                 <div style={{ width: "200px", maxHeight: "200px" }} className='overflow-auto'>
                   {

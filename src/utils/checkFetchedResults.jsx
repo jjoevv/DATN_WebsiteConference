@@ -2,7 +2,6 @@
 
 const checkExistValue = (list) => {
   if (typeof list !== 'object' || list === null) {
-    console.log('khong phai object', list)
     return [];
   }
   

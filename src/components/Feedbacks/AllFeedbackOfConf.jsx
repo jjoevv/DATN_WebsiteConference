@@ -31,7 +31,6 @@ const AllFeedbackOfConf = () => {
             
             const idinpathname = await getIdFromPathname(pathname)
             const response = await getAllFeedbacks(idinpathname)
-            console.log({response})
             setDisplayfeedback(response.rows)
         }   
         handleGetFeedbacks()
@@ -44,13 +43,11 @@ const AllFeedbackOfConf = () => {
     ];
       // Hàm xử lý khi người dùng chọn một tùy chọn từ dropdown
       const handleSelectOption = (option) => {
-        console.log({option})
         setSelectedOption(option);
     };
     const handleChooseFeedback = (e, index) => {
         setIdEdit(feedbacks[index].tid)
         setidCFP(feedbacks[index].CallForPaperCfpId)
-        console.log(feedbacks[index])
     }
 
     const handleDeleteFeedback = (tid)=> {

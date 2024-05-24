@@ -12,13 +12,16 @@ import useSearch from "../../hooks/useSearch";
 import Options from "./Options";
 import { checkExistValue } from "../../utils/checkFetchedResults";
 import { useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons/faSearch";
 
 const Search = ({onApply, onDelete, onClearAll}) => {
-  const {sendFilter, addKeywords, clearKeywords, getQuantity, getOptionsFilter, optionsSelected} = useSearch()
+  const {sendFilter, addKeywords, clearKeywords, optionsSelected, filterOptions} = useSearch()
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
   const [searchInput, setSearchInput] = useState("")  
   const location = useLocation();
   const pathname = location.pathname;
+
   useEffect(()=>{
     clearKeywords()    
     onClearAll()
@@ -47,8 +50,8 @@ const Search = ({onApply, onDelete, onClearAll}) => {
 
   return (
     <Container className="bg-white shadow rounded-4 px-5 pb-4 mb-5">
-      <div className="d-flex align-items-center mb-2">
-        <Image src={filterIcon} width={22} height={22} className="me-2" />
+      <div className="d-flex align-items-center mb-1 pt-3">
+        <FontAwesomeIcon icon={faSearch} className="text-color-black fs-5 me-2"/>
         <h4 className="mt-2">Searching</h4>
       </div>
       <Stack>

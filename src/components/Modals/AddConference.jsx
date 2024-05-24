@@ -1,23 +1,38 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Col, Form, Image, Modal, Carousel, CarouselItem } from 'react-bootstrap'
+import { Button, Col, Form, Image, Modal, Carousel, CarouselItem, Row, OverlayTrigger, Tooltip, Accordion } from 'react-bootstrap'
 import AddButtonIcon from './../../assets/imgs/edit.png'
 import ChooseFORs from '../PostConference/ChooseFORs';
-import data from './../Filter/options.json'
 import usePost from '../../hooks/usePost';
+import data from '../../components/Filter/options.json'
 import useAccordionDates from '../../hooks/useAccordionDates';
-import AccordionDates from '../PostConference/AccordionDates';
 import SuccessfulModal from './SuccessModal';
 import LocationInput from '../PostConference/LocationInput';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import useSearch from '../../hooks/useSearch';
+import Loading from '../Loading';
 
 const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) => {
-    const {postConference, getPostedConferences} = usePost()
+    const { loading, postConference, getPostedConferences } = usePost()
+    const { filterOptions, getOptionsFilter } = useSearch()
     const { items, dateListByRound, mergeDatesByRound, addDateToRound, addItem, deleteItem } = useAccordionDates()
     const [page, setPage] = useState(0)
     const [isPosted, setIsPosted] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [message, setMessage] = useState(false)
     const [error, setError] = useState(false)
-    const [statusPost, setstatusPost] =useState(false)
+
+
+    const [message, setMesage] = useState('')
+    const [status, setStatus] = useState(false)
+    const [showSuccessModal, setShowSuccessModal] = useState(false)
+    const [activeAccordionKey, setActiveAccordionKey] = useState([]);
+
+
+    useEffect(() => {
+        if (!filterOptions['rank']) {
+            getOptionsFilter('', [])
+        }
+    }, [filterOptions])
+
     const [formData, setFormData] = useState({
         conf_name: '',
         acronym: '',
@@ -32,7 +47,7 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
             type: '',
             location: '',
         }],
-        importantDates: [],
+        importantDates: [{ date_value: '', date_type: '' }],
     });
 
     const [requiredFields, setRequiredFields] = useState({
@@ -45,13 +60,98 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
     });
 
 
-    const handleImportantDatesChange = (round, date) => {
-        console.log('paretn', {round, date})
-        addDateToRound(round, date)
-    }
+    const [invalidDates, setInvalidDates] = useState([]);
+
+    const handleAddDate = () => {
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            importantDates: [...prevFormData.importantDates, { date_value: '', date_type: '' }]
+        }));
+    };
+
+    const handleRemoveDate = (index) => {
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            importantDates: prevFormData.importantDates.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleDateChange = (e, index, field) => {
+        const { value } = e.target;
+        const updatedDates = formData.importantDates.map((date, i) =>
+            i === index ? { ...date, [field]: value } : date
+        );
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            importantDates: updatedDates
+        }));
+    };
 
     const [selectedfieldsOfResearch, setSelectedfieldsOfResearch] = useState([]);
 
+    const isEndDateValid = (startDate, endDate) => {
+        return new Date(startDate) <= new Date(endDate);
+    };
+    const handleOrgChange = (index, field, value) => {
+        const updatedOrgs = [...formData.organizations];
+        const org = { ...updatedOrgs[index] };
+
+        // Kiểm tra nếu field là 'end_date'
+        if (field === 'end_date') {
+            // Lấy giá trị hiện tại của start_date
+            const start_date = org.start_date;
+
+            // Kiểm tra tính hợp lệ của end_date
+            if (!isEndDateValid(start_date, value)) {
+                // Nếu end_date không hợp lệ, đánh dấu lỗi
+                org.isInvalidEndDate = true;
+            } else {
+                // Nếu end_date hợp lệ, loại bỏ đánh dấu lỗi
+                org.isInvalidEndDate = false;
+            }
+        }
+
+        // Cập nhật giá trị của trường field
+        org[field] = value;
+
+        // Cập nhật lại organizations trong state
+        updatedOrgs[index] = org;
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            organizations: updatedOrgs
+        }));
+    };
+
+    const handleAddOrganization = () => {
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            organizations: [...prevFormData.organizations, {
+                name: '',
+                start_date: '',
+                end_date: '',
+                type: '',
+                location: '',
+            }]
+        }));
+    };
+    const isOrganizationValid = (org) => {
+        return org.name.trim() !== '' && org.start_date.trim() !== '';
+    };
+
+    const removeInvalidOrganizations = () => {
+        const updatedOrgs = formData.organizations.filter(isOrganizationValid);
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            organizations: updatedOrgs
+        }));
+    };
+    const handleRemoveOrganization = (index) => {
+        setFormData(prevFormData => ({
+            ...prevFormData,
+            organizations: prevFormData.organizations.filter((_, i) => i !== index)
+        }));
+        //setInvalidOrganizations(prevInvalidOrganizations => prevInvalidOrganizations.filter(i => i !== index));
+    };
 
     const handlefieldsOfResearchChange = (selectedOption) => {
         setSelectedfieldsOfResearch(selectedOption);
@@ -75,42 +175,16 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
 
     };
 
-    const handleorganizationsChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            organizations: prevState.organizations.map((org) => ({
-                ...org,
-                [name]: value,
-            })),
-        }))
-        if (name === 'startDate') {
-            // Ẩn các ngày trước hoặc bằng ngày start date đã chọn trên end date
-            document.getElementById('endDate').min = value;
-        } else if (name === 'endDate') {
-            // Ẩn các ngày sau hoặc bằng ngày end date đã chọn trên start date
-            document.getElementById('startDate').max = value;
-        }
+    const handleLocationChange = (orgIndex, location) => {
+        setFormData(prevFormData => {
+            const updatedOrgs = [...prevFormData.organizations];
+            updatedOrgs[orgIndex].location = location;
+            return {
+                ...prevFormData,
+                organizations: updatedOrgs
+            };
+        });
     };
-    const handleLocationChange = (value) => {
-        setFormData((prevState) => ({
-            ...prevState,
-            organizations: prevState.organizations.map((org) => ({
-                ...org,
-                location: value,
-            })),
-        }))
-    }
-    const handleDatesUpdate = () => {
-        const merged = mergeDatesByRound()
-        console.log({merged})
-        setFormData(prevFormData => ({
-            ...prevFormData,
-            importantDates: merged,
-        }));
-        return merged
-    }
-
     const handleClearForm = () => {
 
         setRequiredFields({
@@ -129,14 +203,32 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
         handleClearForm()
         setPage(0)
     }
-    const handleFormSubmit = async () => {
-        const importants = await handleDatesUpdate()
-        console.log({importants})
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        await removeInvalidOrganizations()
+        const newInvalidDates = formData.importantDates.reduce((acc, date, index) => {
+            if ((date.date_value === '' && date.date_type !== '') || (date.date_value !== '' && date.date_type === '')) {
+                acc.push(index);
+            }
+            return acc;
+        }, []);
+
+        if (newInvalidDates.length > 0) {
+            setInvalidDates(newInvalidDates);
+            alert("Please fill out both date value and date type or leave them both empty.");
+        } else {
+            const cleanedDates = formData.importantDates.filter(date => date.date_value !== '' && date.date_type !== '');
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                importantDates: cleanedDates
+            }));
+            setInvalidDates([]);
+            // Handle form submission logic here
+        }
         let allValid = true
         for (const field in requiredFields) {
             if (formData[field] === '' || formData[field] === undefined || (field === 'fieldsOfResearch' && formData[field].length === 0)) {
                 allValid = false;
-                console.log('allvalid', allValid)
                 requiredFields[field] = false
 
             } else {
@@ -144,23 +236,17 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
             }
         }
         if (allValid) {
-            setLoading(true)
             setIsPosted(true)
-            
-            const {status, message} = await postConference(formData)            
-            setLoading(false)
-            console.log({status, formData})
-            setMessage(message)
-            setstatusPost(status)
-            if (status) {
-                handleCheckStatus(true, message)
-                onReloadList()                
-                handleCloseForm()
-            } else {
-                setError(true)
-                }
-              
+            const result = await postConference(formData)
+            setMesage(result.message)
+            setStatus(result.status)
+            onReloadList()
+            if (result.status) {
+                setShowSuccessModal(true)
+                setIsPosted(false)
             }
+
+        }
 
         else {
             setRequiredFields(requiredFields)
@@ -179,13 +265,15 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
                 scrollable
 
             >
+                {status && showSuccessModal && <SuccessfulModal message={message} show={showSuccessModal} handleClose={handleClose} />}
+                {!status && isPosted &&  <p className="text-danger">{message}</p>}
                 <Modal.Header closeButton className='fixed'>
-                    <Modal.Title className="text-center w-100 fw-bold text-color-black">Conference Information</Modal.Title>
+                    <Modal.Title className='text-center w-100 text-skyblue-dark'>Conference Information</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className="modal-scrollable-content m-0"
-                    style={{ minHeight: '400px', maxHeight: '80vh' }}>
+                    style={{ minHeight: "520px", maxHeight: "600px" }}>
 
-                    {isPosted && statusPost && <SuccessfulModal handleCloseForm={handleClose} message={message}/>}
+                    {isPosted && status && <SuccessfulModal handleCloseForm={handleClose} message={message} />}
                     <Form className='px-5'>
                         <div className="modal-scrollable-body">
                             <Carousel activeIndex={page} onSelect={handleSelect} controls={false} interval={null} indicators={false}>
@@ -251,62 +339,135 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
                                         <Form.Select
                                             name="rank"
                                             value={formData.rank}
+                                            placeholder='Select rank...'
                                             onChange={handleInputChange}
                                             className='border-blue-normal'
                                         >
-                                            <option value="N/A">Select rank...</option>
-                                            {
-                                                data.rank.map((r) => (
-                                                    <option value={r.value} key={r.value}>{r.label}</option>
-
+                                            {!filterOptions.rank ? (
+                                                data.rank.map((option, index) => (
+                                                    <option value={option.value} key={index}>{option.label}</option>
                                                 ))
-                                            }
+                                            ) : (
+                                                filterOptions.rank.map((option, index) => (
+                                                    <option value={option} key={index}>{option}</option>
+                                                ))
+                                            )}
+
                                         </Form.Select>
                                     </Form.Group>
 
                                 </Carousel.Item>
                                 <Carousel.Item>
+                                    <Accordion defaultActiveKey={activeAccordionKey} className='mt-3'>
+                                        {formData.organizations.map((org, index) => (
 
-                                    <Form.Group as={Col} className="mb-3 d-flex align-items-center">
-                                        <Form.Label column sm="3">Organizations type:</Form.Label>
-                                        <Form.Select
-                                            type="text"
-                                            name="type"
-                                            value={formData.organizations[0]?.type || ''}
-                                            onChange={handleorganizationsChange}
+                                            <Accordion.Item eventKey={`${index}`} key={index} className='border-0'>
+                                                <Accordion.Header className='p-0'>
+                                                    <div className='d-flex justify-content-between align-items-center w-100'>
+                                                        <div>Organization {index + 1}</div>
+                                                        <div className='d-flex mx-2'>
+                                                            <Button onClick={() => handleRemoveOrganization(index)} className='bg-transparent border-0' title='Delete organization'>
+                                                                <FontAwesomeIcon icon={faCircleXmark} className='text-danger fs-5' />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </Accordion.Header>
+                                                <Accordion.Body className='p-0'>
+                                                    <Form.Group as={Row} className='my-3'>
+                                                        <Form.Label column sm="3">Organization name: </Form.Label>
+                                                        <Col>
+                                                            <div className='d-flex align-items-center'>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    value={org.name}
+                                                                    onChange={(e) => handleOrgChange(index, 'name', e.target.value)}
+                                                                    className={org.isDuplicate && 'border-danger'}
+                                                                    placeholder='Organization name...'
+                                                                />
+                                                                <OverlayTrigger
+                                                                    placement="right"
+                                                                    overlay={<Tooltip id={`tooltip-${index}`}>Organization name must be unique!</Tooltip>}
+                                                                    show={org.isDuplicate}
+                                                                >
+                                                                    <FontAwesomeIcon icon={faCircleXmark} className='ms-2 text-warning' title='Organization name must be unique!' />
+                                                                </OverlayTrigger>
+                                                            </div>
+                                                        </Col>
+                                                    </Form.Group>
+                                                    <Form.Group as={Row} className='my-3'>
+                                                        <Form.Label column sm="3">Type: </Form.Label>
+                                                        <Col>
+                                                            <Form.Select value={org.type} onChange={(e) => handleOrgChange(index, 'type', e.target.value)}>
+                                                                <option value="">Select type...</option>
+                                                                <option value="online">Online</option>
+                                                                <option value="offline">Offline</option>
+                                                                <option value="hybrid">Hybrid</option>
+                                                            </Form.Select>
+                                                        </Col>
+                                                    </Form.Group>
+                                                    <Form.Group as={Row} className='my-3'>
+                                                        <Form.Label column sm="3">Location: </Form.Label>
+                                                        <Col>
+                                                            <LocationInput onLocationChange={handleLocationChange} orgIndex={index} />
+                                                        </Col>
+                                                    </Form.Group>
+                                                    <Form.Group as={Row} key={index} className='mt-1 mb-3 d-flex w-100'>
+                                                        <Col>
+                                                            <Form.Label>Start date:</Form.Label>
+                                                            <Form.Control type="date" value={org.start_date} onChange={(e) => handleOrgChange(index, 'start_date', e.target.value)} />
 
-                                        >
-                                            <option value="">Select organization type...</option>
-                                            {
-                                                data.type.map((r) => (
-                                                    <option value={r.value} key={r.value}>{r.label}</option>
-
-                                                ))
-                                            }
-                                        </Form.Select>
-                                    </Form.Group>
-                                    <Form.Group as={Col} className="mb-3 d-flex align-items-center">
-                                        <Form.Label column sm="3">Organizations name:</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="name"
-                                            value={formData.organizations[0]?.name || ''}
-                                            onChange={handleorganizationsChange}
-                                            placeholder='Enter organization name'
-                                        >
-                                        </Form.Control>
-                                    </Form.Group>
-                                    <LocationInput onLocationChange={handleLocationChange} />
+                                                        </Col>
+                                                        <Col >
+                                                            <Form.Label>End date:</Form.Label>
+                                                            <Form.Control type="date" value={org.end_date} onChange={(e) => handleOrgChange(index, 'end_date', e.target.value)} className={org.isInvalidEndDate ? 'border-danger' : ''} />
+                                                        </Col>
+                                                    </Form.Group>
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        ))}
+                                        <div className='w-100 d-flex justify-content-center'>
+                                            <Button variant="primary" onClick={handleAddOrganization} className='bg-skyblue-dark px-4 py-1 border-light'>
+                                                Add more organization
+                                            </Button>
+                                        </div>
+                                    </Accordion>
                                 </Carousel.Item>
                                 <Carousel.Item>
-                                    <AccordionDates
-                                        items={items}
-                                        formData={formData}
-                                        onChangeImportantDates={handleImportantDatesChange}
-                                        onChangeOrganizations={handleorganizationsChange}
-                                        onAddItem={addItem}
-                                        onDeleteItem={deleteItem}
-                                    />
+                                    {formData.importantDates.map((date, index) => (
+                                        <Form.Group as={Row} key={index} className='my-3 d-flex w-100'>
+                                            <Col sm='6'>
+                                                <Form.Label>Date type:</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder='Round date, submission date, ...'
+                                                    value={date.date_type}
+                                                    onChange={(e) => handleDateChange(e, index, 'date_type')}
+                                                    className={invalidDates.includes(index) && date.date_type === '' ? 'border-danger' : ''}
+                                                />
+
+                                            </Col>
+                                            <Col >
+                                                <Form.Label>Date value:</Form.Label>
+                                                <Form.Control
+                                                    type="date"
+                                                    value={date.date_value}
+                                                    onChange={(e) => handleDateChange(e, index, 'date_value')}
+                                                    className={invalidDates.includes(index) && date.date_value === '' ? 'border-danger' : ''}
+                                                />
+                                            </Col>
+                                            <Col sm='1' className='d-flex align-items-end'>
+                                                <Button variant="danger" onClick={() => handleRemoveDate(index)} className='bg-transparent border-0' title='Delete this date'>
+                                                    <FontAwesomeIcon icon={faCircleXmark} className='text-danger' />
+                                                </Button>
+                                            </Col>
+                                        </Form.Group>
+                                    ))}
+
+                                    <div className='w-100 d-flex justify-content-center'>
+                                        <Button variant="primary" onClick={handleAddDate} className='bg-skyblue-dark px-4 py-1 border-light'>
+                                            Add more date
+                                        </Button>
+                                    </div>
 
                                 </Carousel.Item>
                                 <CarouselItem>
@@ -314,7 +475,7 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
                                         <Form.Label column sm="3">Call for paper:</Form.Label>
                                         <Form.Control
                                             as="textarea"
-                                            rows={14}
+                                            rows={18}
                                             name="callForPaper"
                                             value={formData.callForPaper}
                                             onChange={handleInputChange}
@@ -341,10 +502,22 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
                                 Next
                             </Button>
                             :
-                            <Button onClick={handleFormSubmit} className='bg-blue-normal px-4 mx-3'>
-                                <Image width={20} height={20} className='me-2' src={AddButtonIcon} />
-                                Submit
-                            </Button>
+                            <>
+                                <Button onClick={handleFormSubmit} className='bg-blue-normal px-4 mx-3'>
+                                    {
+                                        loading
+                                            ?
+                                            <Loading />
+                                            :
+                                            <div>
+                                                <Image width={20} height={20} className='me-2' src={AddButtonIcon} />
+                                                Submit
+                                            </div>
+                                    }
+
+                                </Button>
+
+                            </>
                     }
                 </Modal.Footer>
             </Modal>

@@ -36,6 +36,9 @@ function SuccessfulModal({ message, show, handleClose }) {
         <Modal.Header closeButton>
           <Modal.Title className='text-success text-center w-100'>Success</Modal.Title>
         </Modal.Header>
+        <Modal.Body>
+          <span className='text-success'> {message}</span>
+        </Modal.Body>
         <Modal.Footer>
 
           {show && <p>Auto closing in {countdown} seconds</p>}

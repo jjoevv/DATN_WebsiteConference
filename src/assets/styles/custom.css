@@ -537,14 +537,6 @@ a {
     padding-top: 102px;
 }
 
-.tooltip-arrow::before {
-    border-right-color: #4EB1A4 !important
-}
-
-.tooltip-inner {
-    background-color: #4EB1A4 !important;
-    padding: 4px;
-}
 
 /*render event*/
 .event-container {
@@ -565,4 +557,9 @@ a {
 
 .rbc-calendar {
     min-height: 500px ;
+  }
+
+
+  .accordion-button {
+    padding: 8px 10px;
   }

@@ -16,7 +16,6 @@ const DetailInforNoteModal = ({ show, onClose, note, onDelete, onUpdate, onReloa
 
     const [isUpdate, setIsUpdate] = useState(false)
     const [warning, setWarning] = useState('')
-    const [isInput, setIsInput] = useState(false)
     const [inputvalue, setInputValue] = useState('');
     const [autoClose, setAutoCLose] = useState(3)
     const [showConfirmDelete, setShowConfirmDelete] = useState(false)

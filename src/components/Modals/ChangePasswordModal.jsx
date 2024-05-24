@@ -27,7 +27,6 @@ const ChangePasswordModal = ({ show, handleClose, handleShow }) => {
     }
     else {
       const responseData = await changePassword(oldPassword, newPassword)
-      console.log({responseData})
       setStatus(responseData.status)
       if(responseData.status) {        
       // Thực hiện xử lý thay đổi mật khẩu ở đây

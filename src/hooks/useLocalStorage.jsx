@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import useToken from './useToken';
 
 const useLocalStorage = () => {
-  const { savetokenToLocalStorage, refreshToken } = useToken()
+  const { savetokenToLocalStorage } = useToken()
   
   // Kiểm tra xem có dữ liệu người dùng trong localStorage không
   const [user, setUser] = useState(null);
