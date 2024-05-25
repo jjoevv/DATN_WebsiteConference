@@ -49,7 +49,6 @@ const useFilterStorage = (key, keyword) => {
                 apiUrl += `/conference?page=${page}&size=7&${key}[]=${keyword}`;
             } 
             else {  
-                console.log({page, key, keyword})
                 apiUrl += `/conference?page=${page}&size=7&${key}=${keyword}`;
             }
 
@@ -101,7 +100,6 @@ const useFilterStorage = (key, keyword) => {
         const quantity = extractQuantity(keyword)
         setTotal(total - quantity)
         delete updatedDataFilters[keyToClear];
-        console.log({updatedDataFilters})
         setDataFilters(updatedDataFilters);
         sessionStorage.setItem('dataFilters', JSON.stringify(updatedDataFilters));
 

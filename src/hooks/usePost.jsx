@@ -145,7 +145,6 @@ const updateNewList = (newConferences)  => {
         const data = await response.json()        
         const message = data.message
         if (response.ok) {
-          console.log({data, message})
           setLoading(false)
           return {status: true, message}
         }

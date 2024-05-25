@@ -77,7 +77,6 @@ const useSearch = () => {
     
     const start = formatDateFilter(startDate)
     const end = formatDateFilter(endDate)
-    console.log({ keywordFormat, label })
     let data = []
     if (label === 'submissionDate') {
       const response = await fetch(`${baseURL}/conference?subStart=${start}&subEnd=${end}`);
@@ -171,8 +170,6 @@ const getKeyword = (keyword) => {
   }
   const parsedData = JSON.parse(storedData);
   const listFromStorage = parsedData[getKeyword] || [];
-  console.log(state.postedConferences)
-  console.log({listFollowed, postedConferences})
   let commonCount = 0
 
   if(location.pathname==='/followed'){
@@ -190,7 +187,6 @@ const getKeyword = (keyword) => {
 
 const extractQuantity = (keyword) => {
   const regex = /\((\d+)\)/;
-  console.log({keyword})
   // Sử dụng biểu thức chính quy để tìm kiếm giá trị trong ngoặc tròn
   const match = keyword.match(regex);
 

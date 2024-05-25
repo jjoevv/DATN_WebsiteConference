@@ -29,7 +29,6 @@ const useFilter = () => {
 
 
   const handleChangeOptions = (selectedOptions) => {
-    console.log({ selectOptionFilter })
     setSelectOptionFilter(selectedOptions);
     dispatch(selectOptionFilterKeyword(selectedOptions))
   };
@@ -39,7 +38,6 @@ const useFilter = () => {
   }
 
   const searchInput = (keyword) => {
-    console.log({ keyword })
     const dataFilter = sessionStorage.getItem('dataFilters');
     const data = JSON.parse(dataFilter)
     if (dataFilter) {
@@ -49,13 +47,11 @@ const useFilter = () => {
     for (const category in data) {
       const filteredObjects = data[category].filter(obj => searchInObject(obj, keyword));
       if (filteredObjects.length > 0) {
-        console.log({filteredObjects})
         result.push(...filteredObjects);
       }
     }
       dispatch(inputOptionFilterKeyword(result))
 
-      console.log({ data, keyword, result })
     }
     return []
   }

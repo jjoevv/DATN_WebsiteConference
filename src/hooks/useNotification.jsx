@@ -1,8 +1,7 @@
 // useNotification.js
 import { useEffect, useRef, useState } from 'react';
-import { io, Manager } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import useAuth from './useAuth';
-import { baseURL } from './api/baseApi';
 import { useAppContext } from '../context/authContext';
 import { getNotifications } from '../actions/notiAction';
 
@@ -17,22 +16,6 @@ const useNotification = () => {
 
   const [hasNewNotification, setHasNewNotification] = useState(false);
   let socketRef = useRef(null);
-// Function to log all events
-const logAllEvents = (socket) => {
-  console.log(socket)
-  const originalEmit = socket.emit;
-
-  socket.emit = function (...args) {
-    console.log('Socket emit:', args);
-    originalEmit.apply(socket, args);
-  };
-
-  socket.onevent = (packet) => {
-    const eventName = packet.data[0];
-    const eventArgs = packet.data.slice(1);
-    console.log('Socket event:', eventName, eventArgs);
-  };
-};
   useEffect(() => {
     getCurrentUser()
     const user_id = JSON.parse(sessionStorage.getItem('user-id'))
@@ -44,7 +27,6 @@ const logAllEvents = (socket) => {
       path: '/socket.io',
       transports: ["websocket", 'polling']
     });
-    console.log({socketRef})
 
     socket.on('connection', () => {
       console.log('Connected to socket.io server');

@@ -28,7 +28,6 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
 
 
     useEffect(() => {
-        console.log({ filterOptions })
         if (!filterOptions['rank']) {
             getOptionsFilter('', [])
         }
@@ -225,14 +224,11 @@ const AddConference = ({ show, handleClose, handleCheckStatus, onReloadList }) =
             }));
             setInvalidDates([]);
             // Handle form submission logic here
-            console.log("Form submitted:", formData);
         }
-        console.log({ formData })
         let allValid = true
         for (const field in requiredFields) {
             if (formData[field] === '' || formData[field] === undefined || (field === 'fieldsOfResearch' && formData[field].length === 0)) {
                 allValid = false;
-                console.log('allvalid', allValid)
                 requiredFields[field] = false
 
             } else {

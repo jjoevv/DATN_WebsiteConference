@@ -7,14 +7,12 @@ import AvatarDropdown from './AvatarDropdown'
 import useLocalStorage from '../../hooks/useLocalStorage'
 import usePageNavigation from '../../hooks/usePageNavigation'
 import HeaderNoti from '../Notification/HeaderNoti'
-import { io } from 'socket.io-client'
-
+import useNotification from '../../hooks/useNotification'
 const Header = () => {
   const {user} = useLocalStorage();
   const navigate = useNavigate()
   const {goToPreviousPage} = usePageNavigation()
-  const [notifications] = useState([])
-  
+const {notifications}  = useNotification()
   useEffect(()=>{ 
     if (user === null){
       navigate('/home')
@@ -27,32 +25,7 @@ const Header = () => {
       goToPreviousPage(event);
   },[])
 
-  const [socket, setSocket] = useState(null);
 
-  useEffect(() => {
-    const user_id = JSON.parse(sessionStorage.getItem('user-id'))
-    // Kết nối với máy chủ socket
-    const newSocket = io('https://conference-searching.onrender.com', {
-      extraHeaders: {
-        'user-id': user_id
-      }
-    });
-
-    // Lắng nghe sự kiện connect
-    newSocket.on('connect', () => {
-      console.log('Connected to socket server');
-    });
-
-    // Lưu trữ đối tượng socket trong state
-    setSocket(newSocket);
-
-    // Cleanup khi component unmount
-    return () => {
-      if (newSocket) {
-        newSocket.disconnect();
-      }
-    };
-  }, []);
   return (
     <Navbar expand="md" 
     id='header'
@@ -92,7 +65,7 @@ const Header = () => {
                 <Image src={NotiIcon} width={20} height={24} className=' text-center m-auto' />
               </Dropdown.Toggle>
 
-              <HeaderNoti socket={socket}/>
+              <HeaderNoti/>
               <Dropdown.Menu className='shadow' style={{ right: 0, left: 'auto' }}>
                 <div style={{ width: "200px", maxHeight: "200px" }} className='overflow-auto'>
                   {

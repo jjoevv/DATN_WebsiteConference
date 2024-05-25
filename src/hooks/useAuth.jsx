@@ -100,7 +100,6 @@ const useAuth = () => {
 
 
   const updateProfile = (updateData) => {
-    console.log({updateData})
     fetch(`${baseURL}/user/infomation`, {
       method: 'PUT',
       headers: {
